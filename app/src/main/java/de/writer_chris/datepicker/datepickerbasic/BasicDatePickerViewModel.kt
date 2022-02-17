@@ -15,9 +15,6 @@ class BasicDatePickerViewModel : ViewModel() {
     private val sdfFull = SimpleDateFormat("dd. MMM yyyy")
 
     @SuppressLint("SimpleDateFormat")
-    private val sdfYear = SimpleDateFormat("yyyy")
-
-    @SuppressLint("SimpleDateFormat")
     private val sdfMonthYear = SimpleDateFormat("MMMM yyyy")
 
     @SuppressLint("SimpleDateFormat")
@@ -31,10 +28,6 @@ class BasicDatePickerViewModel : ViewModel() {
         sdfFull.format(cal.timeInMillis).toString()
     }
     private val _navigateDate: MutableLiveData<Calendar> = MutableLiveData(getTodayDate())
-
-    val year: LiveData<String> = Transformations.map(_navigateDate) { cal ->
-        sdfYear.format(cal.timeInMillis).toString()
-    }
 
     val month: LiveData<String> = Transformations.map(_navigateDate) { cal ->
         sdfMonthYear.format(cal.timeInMillis).toString()
@@ -58,9 +51,21 @@ class BasicDatePickerViewModel : ViewModel() {
     private fun getTodayDate(): Calendar = Calendar.getInstance()
 
     fun getMonthArray(weekStartsOnMonday: Boolean = true): List<DayOfMonthItem> {
+        return generateMonthArray(weekStartsOnMonday)
+    }
+
+    fun selectDate(cal: Calendar) {
+        changeCalendarValue(cal)
+    }
+
+    fun manipulateMonth(value: Int) {
+        changeMonthValue(value)
+    }
+
+    private fun generateMonthArray(weekStartsOnMonday: Boolean = true): List<DayOfMonthItem> {
         val list = mutableListOf<DayOfMonthItem>()
 
-        val cal = Calendar.getInstance()
+        val cal = getTodayDate()
         cal.timeInMillis = _navigateDate.value?.timeInMillis
             ?: throw IllegalStateException("$LOG manipulateYear value is null")
 
@@ -80,7 +85,6 @@ class BasicDatePickerViewModel : ViewModel() {
 
         for (i in 0 until 42) {
             cal.add(Calendar.DAY_OF_MONTH, 1)
-
             list.add(
                 DayOfMonthItem(
                     year = cal.get(Calendar.YEAR),
@@ -102,7 +106,7 @@ class BasicDatePickerViewModel : ViewModel() {
         return list
     }
 
-    fun manipulateMonth(value: Int) {
+    private fun changeMonthValue(value: Int) {
         val cal = Calendar.getInstance()
         cal.timeInMillis = _navigateDate.value?.timeInMillis
             ?: throw IllegalStateException("$LOG manipulateYear value is null")
@@ -110,7 +114,7 @@ class BasicDatePickerViewModel : ViewModel() {
         _navigateDate.value = cal
     }
 
-    fun selectDate(cal: Calendar) {
+    private fun changeCalendarValue(cal: Calendar) {
         _navigateDate.value = cal
         _selectedDate.value = cal
     }
